@@ -398,12 +398,12 @@ const CONFIG = {
   recaudadoNavidad: 0,     // dólares recibidos para la meta de $10,000
   corazonesMensuales: 0,   // donantes mensuales confirmados
   fechaLimite: "2026-12-15", // fecha límite de la meta urgente
-  enlacePagoMensual: "",   // enlace de pago recurrente (ACH/tarjeta)
-  enlacePagoUnico: "",     // enlace de pago para donativo único
+  enlacePagoMensual: "https://buy.stripe.com/3cIcN7fEK4tq5EZ2W3eQM02",   // enlace de pago recurrente (ACH/tarjeta)
+  enlacePagoUnico: "https://donate.stripe.com/3cIcN7eAG6BygjDbszeQM01",     // enlace de pago para donativo único
   whatsapp: "19392540736",            // número con código de país, solo dígitos. Ej: 17875551234
   email: "100corazonasolidarios@sfmcharities.org",               // correo del equipo de donantes
   direccion: "PO Box 21358, San Juan, PR 00928-1358",           // dirección postal para cheques
-  urlPagina: ""            // enlace público de esta página (para compartir)
+  urlPagina: "https://www.100corazonessolidarios.com"            // enlace público de esta página (para compartir)
 };
 /* ================================================================= */
 
@@ -510,8 +510,9 @@ $("f").addEventListener("submit", e => {
     CONFIG.direccion ? "Envíalo a " + CONFIG.direccion + " o entrégalo a nuestros representantes." : "Entrégalo a nuestros representantes; te enviaremos la dirección postal.",
     "Envíanos este compromiso por WhatsApp o correo para registrarte y confirmar tu recibo."
   ] : metodo === "linea" ? [
-    "Pulsa \"Ir a la página de pago\" y completa " + que + " en la página segura.",
-    "Usa " + code + " como referencia si el formulario de pago lo pide.",
+    mensual ? "Pulsa \"Ir a la página de pago\". Allí cada corazón es $10 al mes: ajusta la cantidad a " + Math.max(1, Math.round(monto / 10)) + " (" + money(Math.max(1, Math.round(monto / 10)) * 10) + " al mes)."
+            : "Pulsa \"Ir a la página de pago\" y escribe " + money(monto) + " como cantidad del donativo.",
+    "Paga con tarjeta, Apple Pay, Google Pay o cuenta de banco (ACH) en la página segura de Stripe.",
     "Envíanos este compromiso por WhatsApp o correo; te confirmamos con tu recibo."
   ] : [
     "Envíanos este compromiso por WhatsApp o correo.",
@@ -530,7 +531,7 @@ $("f").addEventListener("submit", e => {
   const pay = $("payBtn"), link = mensual ? CONFIG.enlacePagoMensual : CONFIG.enlacePagoUnico;
   if (metodo === "ath") { pay.hidden = false; pay.href = ATH_LINK; pay.textContent = "Abrir ATH Móvil"; pay.style.opacity = 1; }
   else if (metodo !== "linea") pay.hidden = true;
-  else if (link) { pay.hidden = false; pay.href = link; }
+  else if (link) { pay.hidden = false; pay.href = link + "?client_reference_id=" + encodeURIComponent(code) + "&prefilled_email=" + encodeURIComponent(val("email")); }
   else { pay.hidden = false; pay.removeAttribute("href"); pay.textContent = "Enlace de pago próximamente"; pay.style.opacity = .6; }
   const wa = $("waBtn");
   if (CONFIG.whatsapp) wa.href = "https://wa.me/" + CONFIG.whatsapp + "?text=" + encodeURIComponent(resumen);
